@@ -1,0 +1,5 @@
+/hudi_glue_catalogue/
+/metastore_db/
+/spark-warehouse/
+/.venv/
+/derby.log
