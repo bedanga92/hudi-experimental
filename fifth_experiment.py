@@ -19,6 +19,7 @@ S3_PATH = f"s3a://spark-hudi-experimental/target/tbl/{TABLE_NAME}/"
 # 1. Initialize Spark Session with Glue HMS Bridge
 spark = SparkSession.builder \
     .appName("Local HMS Bridge to Glue") \
+    .config("spark.master", "local[*]") \
     .config("spark.serializer", "org.apache.spark.serializer.KryoSerializer") \
     .config("spark.sql.catalog.spark_catalog", "org.apache.spark.sql.hudi.catalog.HoodieCatalog") \
     .config("spark.sql.extensions", "org.apache.spark.sql.hudi.HoodieSparkSessionExtension") \
@@ -41,7 +42,7 @@ spark = SparkSession.builder \
 fake = Faker()
 data = []
 
-for _ in range(10):
+for _ in range(1000):
     row = {
         "id": _ + 1,
         "name": fake.name(),
@@ -92,14 +93,14 @@ hudi_options = {
     "hoodie.datasource.hive_sync.ignore_errors": "false",
 
     # --- PERFORMANCE ---
-    "hoodie.upsert.shuffle.parallelism": 2,
-    "hoodie.insert.shuffle.parallelism": 2
+    "hoodie.upsert.shuffle.parallelism": 10,
+    "hoodie.insert.shuffle.parallelism": 10
 }
 
 print(f"Executing write and Glue sync for table: {DATABASE_NAME}.{TABLE_NAME}...")
 df.write.format("hudi").options(**hudi_options).mode("append").save(S3_PATH)
 
-print("\nVerifying via Spark-Glue Bridge...")
-spark.sql(f"SELECT * FROM {DATABASE_NAME}.{TABLE_NAME}").show()
+# print("\nVerifying via Spark-Glue Bridge...")
+# spark.sql(f"SELECT * FROM {DATABASE_NAME}.{TABLE_NAME}").show()
 
 # spark.stop()
