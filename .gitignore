@@ -3,3 +3,5 @@
 /spark-warehouse/
 /.venv/
 /derby.log
+/hudi_glue_connection/metastore_db/
+/hudi_glue_connection/derby.log
